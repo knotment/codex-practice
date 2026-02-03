@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>会社決算タスク管理ツール</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app__header">
+        <div>
+          <p class="app__eyebrow">決算進捗をひと目で確認</p>
+          <h1>会社決算タスク管理ツール</h1>
+          <p class="app__subtitle">
+            月次・四半期・年次決算のタスクを整理し、担当者と期限を共有できます。
+          </p>
+        </div>
+        <section class="summary" aria-label="決算進捗サマリー">
+          <div>
+            <h2>進捗率</h2>
+            <p class="summary__value" id="summaryProgress">0%</p>
+          </div>
+          <div>
+            <h2>期限超過</h2>
+            <p class="summary__value summary__value--alert" id="summaryOverdue">0件</p>
+          </div>
+          <div>
+            <h2>要レビュー</h2>
+            <p class="summary__value" id="summaryReview">0件</p>
+          </div>
+        </section>
+      </header>
+
+      <main>
+        <section class="panel">
+          <div class="panel__header">
+            <h2>初期設定（質問に回答すると自動でタスクを生成）</h2>
+            <p class="panel__hint">決算の前提条件を入力して、よくあるタスクを一括登録します。</p>
+          </div>
+          <form id="setupForm" class="form">
+            <label>
+              決算月
+              <select name="fiscalMonth" required>
+                <option value="1">1月</option>
+                <option value="2">2月</option>
+                <option value="3">3月</option>
+                <option value="4">4月</option>
+                <option value="5">5月</option>
+                <option value="6">6月</option>
+                <option value="7">7月</option>
+                <option value="8">8月</option>
+                <option value="9">9月</option>
+                <option value="10">10月</option>
+                <option value="11">11月</option>
+                <option value="12">12月</option>
+              </select>
+            </label>
+            <label>
+              決算頻度
+              <select name="closingScope" required>
+                <option value="フル">月次＋四半期＋年次</option>
+                <option value="月次">月次のみ</option>
+                <option value="四半期">四半期のみ</option>
+                <option value="年次">年次のみ</option>
+              </select>
+            </label>
+            <label>
+              消費税区分
+              <select name="taxStatus" required>
+                <option value="課税事業者">課税事業者</option>
+                <option value="免税事業者">免税事業者</option>
+                <option value="簡易課税">簡易課税</option>
+              </select>
+            </label>
+            <label>
+              監査対応
+              <select name="audit" required>
+                <option value="あり">あり</option>
+                <option value="なし">なし</option>
+              </select>
+            </label>
+            <label class="form__span">
+              主担当（未入力の場合は「未設定」）
+              <input name="defaultOwner" type="text" placeholder="例：経理部 佐藤" />
+            </label>
+            <div class="form__span form__actions">
+              <button class="button" type="submit">質問からタスクを生成</button>
+              <span id="setupMessage" class="panel__message" aria-live="polite"></span>
+            </div>
+          </form>
+        </section>
+        <section class="panel">
+          <h2>タスクを追加</h2>
+          <form id="taskForm" class="form">
+            <label>
+              タスク名
+              <input name="title" type="text" placeholder="例：仕訳のレビュー" required />
+            </label>
+            <label>
+              種別
+              <select name="category" required>
+                <option value="月次">月次</option>
+                <option value="四半期">四半期</option>
+                <option value="年次">年次</option>
+                <option value="監査対応">監査対応</option>
+              </select>
+            </label>
+            <label>
+              担当者
+              <input name="owner" type="text" placeholder="例：経理部 佐藤" required />
+            </label>
+            <label>
+              期限
+              <input name="due" type="date" required />
+            </label>
+            <label>
+              優先度
+              <select name="priority" required>
+                <option value="高">高</option>
+                <option value="中">中</option>
+                <option value="低">低</option>
+              </select>
+            </label>
+            <label>
+              ステータス
+              <select name="status" required>
+                <option value="未着手">未着手</option>
+                <option value="進行中">進行中</option>
+                <option value="要レビュー">要レビュー</option>
+                <option value="完了">完了</option>
+              </select>
+            </label>
+            <label class="form__span">
+              補足メモ
+              <textarea name="note" rows="2" placeholder="例：資料の受領待ち"></textarea>
+            </label>
+            <button class="button" type="submit">タスクを追加する</button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel__header">
+            <h2>タスク一覧</h2>
+            <div class="filters">
+              <label>
+                カテゴリ
+                <select id="filterCategory">
+                  <option value="all">すべて</option>
+                  <option value="月次">月次</option>
+                  <option value="四半期">四半期</option>
+                  <option value="年次">年次</option>
+                  <option value="監査対応">監査対応</option>
+                </select>
+              </label>
+              <label>
+                ステータス
+                <select id="filterStatus">
+                  <option value="all">すべて</option>
+                  <option value="未着手">未着手</option>
+                  <option value="進行中">進行中</option>
+                  <option value="要レビュー">要レビュー</option>
+                  <option value="完了">完了</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="table" role="table" aria-label="決算タスク一覧">
+            <div class="table__header" role="row">
+              <span>タスク</span>
+              <span>種別</span>
+              <span>担当</span>
+              <span>期限</span>
+              <span>優先度</span>
+              <span>ステータス</span>
+              <span>操作</span>
+            </div>
+            <div id="taskList" class="table__body" role="rowgroup"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="taskRowTemplate">
+      <div class="table__row" role="row">
+        <span class="cell cell--title"></span>
+        <span class="cell cell--category"></span>
+        <span class="cell cell--owner"></span>
+        <span class="cell cell--due"></span>
+        <span class="cell cell--priority"></span>
+        <span class="cell cell--status"></span>
+        <span class="cell cell--actions">
+          <button class="button button--ghost" data-action="toggle">完了にする</button>
+          <button class="button button--ghost" data-action="delete">削除</button>
+        </span>
+      </div>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
